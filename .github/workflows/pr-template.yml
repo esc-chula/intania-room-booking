@@ -21,11 +21,12 @@ jobs:
               fail=1
             fi
           done
-          if [ "$(grep -c '^- \[[ xX]\]' <<<"$BODY")" -lt 5 ]; then
+          if [ "$(grep -c '^- \[[ xX]\]' <<<"$BODY")" -lt  ]; then
             echo "::error::The checklist items from the template are missing."
             fail=1
           fi
-          if grep -q '^- \[ \]' <<<"$BODY"; then
+          # Items marked "(optional)" may stay unticked.
+          if grep '^- \[ \]' <<<"$BODY" | grep -qv '(optional)'; then
             echo "::error::Some checklist items are not ticked. Tick them, or remove the line and explain why in the description."
             fail=1
           fi

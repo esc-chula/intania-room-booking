@@ -5,7 +5,7 @@
 1. Pick or create an issue that names the requirement and the design frame.
 2. Branch from `main`: `feat/os-availability-calendar`, `fix/status-badge-label`, `docs/...`, `chore/...`.
 3. Keep the pull request small: one screen or one behaviour.
-4. Run `bun run check`, then open a pull request using the template. Keep the template text: do not replace the description with `gh pr create --body` or `--fill`, and fill in every section. The `PR template` CI job fails when a section is missing or a checklist box is unticked.
+4. Run `bun run check`, then open a pull request using the template. Keep the template text: do not replace the description with `gh pr create --body` or `--fill`, and fill in every section. The `PR template` CI job fails when a section is missing or a required checklist box is unticked. Boxes marked "(optional)" can stay unticked.
 5. Get one approval and green CI, then squash and merge. Nobody pushes directly to `main`.
 
 Commit messages follow [Conventional Commits](https://www.conventionalcommits.org): `feat: add availability week view`. With squash merge, the pull request title becomes the commit, so it matters most.
