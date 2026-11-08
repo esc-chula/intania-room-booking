@@ -1,0 +1,5 @@
+* text=auto eol=lf
+
+# Design exports are huge single-line files: keep them out of diffs and language stats.
+designs/*.svg -diff linguist-generated
+docs/*.docx binary
