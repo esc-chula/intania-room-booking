@@ -1,5 +1,3 @@
-// Terms follow "Keywords" in docs/Room_Booking_System_EPIC.md. Labels follow the designs.
-
 export const BOOKING_STATUSES = [
   "pending",
   "approved",
