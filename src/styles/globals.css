@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens, taken from designs/component.svg and the screen sheets.
+ * Use these through Tailwind classes (bg-primary, text-status-pending-foreground).
+ * Do not hard-code hex values in components.
+ */
+:root {
+  --radius: 0.5rem;
+
+  --background: #fafafa;
+  --foreground: #262626;
+  --card: #ffffff;
+  --card-foreground: #262626;
+  --popover: #ffffff;
+  --popover-foreground: #262626;
+
+  /* Brand maroon */
+  --primary: #821923;
+  --primary-foreground: #ffffff;
+  --primary-hover: #68141c;
+
+  --secondary: #f8edef;
+  --secondary-foreground: #821923;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --accent: #f8edef;
+  --accent-foreground: #821923;
+  --destructive: #ef4444;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #9b474f;
+
+  --sidebar: #68141c;
+  --sidebar-foreground: #ffffff;
+  --sidebar-accent: #821923;
+  --sidebar-hover: #9b474f; /* hover and open-group fill in designs/components/sidebar-* */
+
+  /* Booking and location statuses, see src/domain/ */
+  --status-pending: #fef9c3;
+  --status-pending-foreground: #ca8a04;
+
+  --status-approved: #ecfccb;
+  --status-approved-foreground: #3f6212;
+
+  --status-rejected: #fff1f2;
+  --status-rejected-foreground: #b42332;
+
+  --status-cancelled: #fca5a5;
+  --status-cancelled-foreground: #7f1d1d;
+
+  --status-conflicted: #450a0a;
+  --status-conflicted-foreground: #ffffff;
+
+  /* Calendar surfaces, from designs/ Mouthly.svg (CheckRoomAvalible) */
+  --line: #e1e3e8; /* calendar card border and day lines */
+  --surface: #f5f6f8; /* tab bar, weekday row, weekends */
+  --weekday-foreground: #424751;
+  --faint-foreground: #a3a3a3; /* day numbers outside the month */
+  --filter-pending: #fef3c7; /* status filter chips on the availability screens */
+  --filter-cancelled: #fee2e2;
+
+  /* Booking cards in the week and day views, from Weekly.svg / daily.svg */
+  --event-approved: #d1f4e0;
+  --event-approved-foreground: #0b6c4b;
+  --event-pending: #fef0c7;
+  --event-pending-foreground: #916500;
+  --event-conflicted: #ffdad6;
+  --event-conflicted-foreground: #ba1a1a;
+  --today-column: #f8eef0; /* today's column and the conflict notice */
+}
+
+@theme inline {
+  --font-sans: var(--font-plex-thai), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-hover: var(--sidebar-hover);
+
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --color-weekday-foreground: var(--weekday-foreground);
+  --color-faint-foreground: var(--faint-foreground);
+  --color-filter-pending: var(--filter-pending);
+  --color-filter-cancelled: var(--filter-cancelled);
+  --color-event-approved: var(--event-approved);
+  --color-event-approved-foreground: var(--event-approved-foreground);
+  --color-event-pending: var(--event-pending);
+  --color-event-pending-foreground: var(--event-pending-foreground);
+  --color-event-conflicted: var(--event-conflicted);
+  --color-event-conflicted-foreground: var(--event-conflicted-foreground);
+  --color-today-column: var(--today-column);
+
+  --color-status-pending: var(--status-pending);
+  --color-status-pending-foreground: var(--status-pending-foreground);
+  --color-status-approved: var(--status-approved);
+  --color-status-approved-foreground: var(--status-approved-foreground);
+  --color-status-rejected: var(--status-rejected);
+  --color-status-rejected-foreground: var(--status-rejected-foreground);
+  --color-status-cancelled: var(--status-cancelled);
+  --color-status-cancelled-foreground: var(--status-cancelled-foreground);
+  --color-status-conflicted: var(--status-conflicted);
+  --color-status-conflicted-foreground: var(--status-conflicted-foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground;
+  }
+}
