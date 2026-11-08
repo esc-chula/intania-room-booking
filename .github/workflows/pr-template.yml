@@ -1,0 +1,34 @@
+name: PR template
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  template:
+    runs-on: ubuntu-latest
+    steps:
+      # The body goes through an environment variable, never straight into the
+      # script, so a pull request description cannot inject shell commands.
+      - name: Check the description follows .github/pull_request_template.md
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          fail=0
+          for heading in "## What and why" "## Screenshots" "## Checklist"; do
+            if ! grep -qF "$heading" <<<"$BODY"; then
+              echo "::error::The description is missing the \"$heading\" section from the pull request template."
+              fail=1
+            fi
+          done
+          if [ "$(grep -c '^- \[[ xX]\]' <<<"$BODY")" -lt  ]; then
+            echo "::error::The checklist items from the template are missing."
+            fail=1
+          fi
+          # Items marked "(optional)" may stay unticked.
+          unticked="$(grep '^- \[ \]' <<<"$BODY" | grep -vc '(optional)' || true)"
+          if [ "$unticked" -gt 0 ]; then
+            echo "::error::Some checklist items are not ticked. Tick them, or remove the line and explain why in the description."
+            fail=1
+          fi
+          exit $fail
