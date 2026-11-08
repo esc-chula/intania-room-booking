@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * Design tokens, taken from designs/component.svg and the screen sheets.
+ * Design tokens, taken from the sheets in designs/components/ and the screen sheets.
  * Use these through Tailwind classes (bg-primary, text-status-pending-foreground).
  * Do not hard-code hex values in components.
  */

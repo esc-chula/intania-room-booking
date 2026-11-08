@@ -8,12 +8,12 @@ Each SVG holds several frames on a dark canvas, at 1920px wide. Open one in a br
 
 The EPIC scopes Sprint 0 to Epic 3 stories 1-2 and Epic 4, as dashboards that help OS.
 
-| Route                                | Screen                                              | Design file                                  | Requirement                            |
-| ------------------------------------ | --------------------------------------------------- | -------------------------------------------- | -------------------------------------- |
-| `/os/availability`                   | ตรวจสอบห้องว่าง (month, week, day)                  | `OS -ตรวจสอบห้องว่าง.svg`                    | Epic 3 story 1, Epic 4 story 1         |
-| `/availability`                      | Read-only version for users (no design, question 3) | `OS -ตรวจสอบห้องว่าง.svg`                    | Epic 3 story 1                         |
-| `/os/requests/[service]`             | รายการคำขอ, filter dialog                           | `OS - รายการคำขอ.svg`, `Test.svg`, `row.svg` | Epic 3 stories 2 and 4, Epic 4         |
-| `/os/requests/[service]/[requestId]` | Request detail, conflict panel, approve and reject  | `OS - รายการคำขอ.svg`                        | Epic 3 story 2, Epic 4, Epic 5 story 2 |
+| Route                                | Screen                                              | Design file               | Requirement                            |
+| ------------------------------------ | --------------------------------------------------- | ------------------------- | -------------------------------------- |
+| `/os/availability`                   | ตรวจสอบห้องว่าง (month, week, day)                  | `OS -ตรวจสอบห้องว่าง.svg` | Epic 3 story 1, Epic 4 story 1         |
+| `/availability`                      | Read-only version for users (no design, question 3) | `OS -ตรวจสอบห้องว่าง.svg` | Epic 3 story 1                         |
+| `/os/requests/[service]`             | รายการคำขอ, filter dialog                           | `OS - รายการคำขอ.svg`     | Epic 3 stories 2 and 4, Epic 4         |
+| `/os/requests/[service]/[requestId]` | Request detail, conflict panel, approve and reject  | `OS - รายการคำขอ.svg`     | Epic 3 story 2, Epic 4, Epic 5 story 2 |
 
 ## OS
 
@@ -29,7 +29,7 @@ The EPIC scopes Sprint 0 to Epic 3 stories 1-2 and Epic 4, as dashboards that he
 
 | Route                     | Screen                                      | Design file                        | Requirement                         |
 | ------------------------- | ------------------------------------------- | ---------------------------------- | ----------------------------------- |
-| `/login`                  | Sign in (Google button, not the CUNET form) | `onboard & login.svg`              | Open question 2, ADR 0002           |
+| `/login`                  | Sign in (Google button, not the CUNET form) | none (no design file)              | Open question 2, ADR 0002           |
 | `/home`                   | Home for User A, notification dialog        | `User A - home.svg`                | Epic 3 story 3                      |
 | `/home`                   | Home for User B, 5 service cards            | `User B - home.svg`                | Epic 1 story 1, Epic 3 story 3      |
 | `/requests`               | ประวัติคำขอ                                 | `User A & B - History Request.svg` | Epic 3 story 2                      |
@@ -42,12 +42,8 @@ The EPIC scopes Sprint 0 to Epic 3 stories 1-2 and Epic 4, as dashboards that he
 
 ## Shared parts
 
-| Design file                                                                                  | Contains                                                       | Build as                            |
-| -------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ----------------------------------- |
-| `component.svg`                                                                              | Sidebar states, headers, badges, filters, dialogs, detail card | `src/components/`, `components/ui/` |
-| `hearder.svg`                                                                                | Page header bar                                                | `src/components/layout/`            |
-| `row.svg`, `Test.svg`                                                                        | Request table rows and multi-room layouts                      | `src/features/` (requests table)    |
-| `หน้าหลัก รายการคำขอ สถานที่และอุปกรณ์ ยืมอุปกรณ์ ลานจอดรถ เปลี่ยนเส้นทางการจราจร ติดต่.svg` | OS sidebar labels                                              | `src/config/navigation.ts`          |
+| Design file | Contains | Build as |
+| ----------- | -------- | -------- |
 
 ## Component exports
 
@@ -80,4 +76,4 @@ Values read from the SVGs and defined in `src/styles/globals.css`:
 | `border`                   | `#E5E5E5`         | Borders, dividers            |
 | `status-*`                 | See `globals.css` | Status badges                |
 
-`#9747FF` in `component.svg` is the design tool's component outline, not a project colour.
+`#9747FF` in the design sheets is the design tool's component outline, not a project colour.

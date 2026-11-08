@@ -9,8 +9,6 @@ export const SHEET_STATUSES = [
 ] as const;
 export type SheetStatus = (typeof SHEET_STATUSES)[number];
 
-// Whether OS's internal statuses (ลง TIMELINE แล้ว, แก้ไขเอกสาร) count as pending
-// is open question 25. Until it is answered they all show as รอดำเนินการ.
 export function toBookingStatus(
   status: string,
 ): Exclude<AvailabilityStatus, "conflicted"> {
@@ -19,7 +17,6 @@ export function toBookingStatus(
   return "pending";
 }
 
-// Statuses the availability page can show. Nothing in the sheet is "rejected".
 export type AvailabilityStatus = keyof DayStatusCounts;
 
 export type DayStatusCounts = {

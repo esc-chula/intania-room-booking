@@ -35,7 +35,7 @@ Features must not import from other features. Move shared code up instead.
 
 - **Mobile first.** The EPIC says most users book from a phone. Write the phone layout first and add `md:` for larger screens, even though the frames are desktop.
 - **Tokens only.** Colours come from `src/styles/globals.css` (`bg-primary`, `text-status-pending-foreground`). If a colour is missing, add a token.
-- **Primitives.** Add them with `bunx shadcn@latest add <component>`, then adjust to match `designs/component.svg`. The CLI currently writes a broken import, `from "cn"`, so change it to `from "@/lib/utils"` (`bun run typecheck` fails until you do).
+- **Primitives.** Add them with `bunx shadcn@latest add <component>`, then adjust to match the sheets in `designs/components/`. The CLI currently writes a broken import, `from "cn"`, so change it to `from "@/lib/utils"` (`bun run typecheck` fails until you do).
 - **Statuses.** Use `StatusBadge` and the types in `src/domain/booking.ts`. Never write the Thai label by hand.
 - **Text.** The UI is Thai only, so hard-coded Thai strings are fine. Identifiers and code comments are in English.
 - **Accessibility.** Use real buttons, links and labels. Status must never be shown by colour alone.
