@@ -16,7 +16,7 @@ export default async function OsRequestListPage({
     <ScreenPlaceholder
       title={`รายการคำขอ: ${service.label}`}
       epics="Epic 3 stories 2 and 4, Epic 4, Epic 5 story 3"
-      design={["OS - รายการคำขอ.svg", "Test.svg", "row.svg"]}
+      design={["OS - รายการคำขอ.svg"]}
       sprint0
     />
   );
