@@ -16,6 +16,6 @@ Closes #
 
 - [ ] `bun run check` passes
 - [ ] Matches the frame in `designs/`, or the difference is explained above
-- [ ] Works at phone width
+- [ ] Works at phone width (optional)
 - [ ] Colours and statuses come from tokens and `src/domain/`, not hard-coded values
 - [ ] Any new unknown is added to `docs/open-questions.md`
