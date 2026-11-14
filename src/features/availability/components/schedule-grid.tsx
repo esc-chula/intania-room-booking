@@ -48,10 +48,10 @@ export function ScheduleGrid({
 
   return (
     <div className="overflow-x-auto border-t border-line">
-      <table className="w-full min-w-[900px] table-fixed border-collapse text-sm">
+      <table className="w-full min-w-[840px] table-fixed border-collapse text-sm">
         <thead>
           <tr>
-            <th className="sticky left-0 z-10 h-[76px] w-[190px] border-r border-b border-line bg-surface px-4 text-left text-sm font-medium text-weekday-foreground">
+            <th className="sticky left-0 z-10 h-16 w-32 border-r border-b border-line bg-surface px-4 text-left text-sm font-medium text-weekday-foreground xl:w-40 2xl:h-[76px] 2xl:w-[190px]">
               สถานที่ / วันที่
             </th>
             {days.map((day) => (
@@ -84,7 +84,7 @@ export function ScheduleGrid({
         </thead>
         <tbody>
           {rooms.map((room) => (
-            <tr key={room.id} className="h-[138px]">
+            <tr key={room.id} className="h-28 2xl:h-[138px]">
               <th
                 scope="row"
                 className="sticky left-0 z-10 border-r border-b border-line bg-card px-4 text-left font-semibold"

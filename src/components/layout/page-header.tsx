@@ -12,7 +12,9 @@ type PageHeaderProps = {
 export function PageHeader({ title, notificationCount = 0 }: PageHeaderProps) {
   return (
     <header className="flex min-h-12 items-center justify-between gap-4">
-      <h1 className="text-4xl font-bold text-primary">{title}</h1>
+      <h1 className="text-2xl font-bold text-primary md:text-3xl 2xl:text-4xl">
+        {title}
+      </h1>
       <div className="flex shrink-0 items-center gap-4">
         <button
           type="button"

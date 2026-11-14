@@ -147,7 +147,7 @@ export function DayList({
         {conflictRooms.length > 0 ? (
           <div
             role="alert"
-            className="flex gap-3 bg-today-column px-6 py-5 text-sm text-event-conflicted-foreground"
+            className="flex gap-3 bg-today-column px-6 py-5 text-sm text-status-conflicted"
           >
             <TriangleAlert className="mt-0.5 size-5 shrink-0" aria-hidden />
             <div>

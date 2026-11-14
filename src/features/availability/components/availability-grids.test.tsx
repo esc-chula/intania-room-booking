@@ -129,7 +129,7 @@ describe("ScheduleGrid", () => {
     const cell = container.querySelector(
       '[data-room="r1"][data-date="2026-08-03"]',
     )!;
-    expect(cell.firstElementChild).toHaveClass("bg-event-conflicted");
+    expect(cell.firstElementChild).toHaveClass("bg-status-conflicted");
   });
 });
 

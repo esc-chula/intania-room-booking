@@ -1,0 +1,4 @@
+# Copy to backend.hcl (gitignored), then:
+#   terraform init -backend-config=backend.hcl
+bucket = "YOUR-STATE-BUCKET"
+prefix = "intania-room-booking-web"

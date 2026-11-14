@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import { Logo } from "@/components/layout/logo";
 import { homeFor } from "@/domain/auth";
 import { useCurrentUser } from "../hooks";
-import { authErrorMessage } from "../lib/errors";
+import { describeAuthError } from "../lib/errors";
 import { rememberNextPath, safeNextPath } from "../lib/next-path";
 
 export function LoginCard({ next, error }: { next?: string; error?: string }) {
   const router = useRouter();
   const { data: user } = useCurrentUser();
   const target = safeNextPath(next);
-  const message = authErrorMessage(error);
+  const failure = describeAuthError(error);
 
   // Pass by auth users
   useEffect(() => {
@@ -33,13 +33,18 @@ export function LoginCard({ next, error }: { next?: string; error?: string }) {
           </p>
         </div>
         <div className="w-full space-y-3 md:max-w-xs">
-          {message ? (
-            <p
+          {failure ? (
+            <div
               role="alert"
-              className="rounded-md bg-status-rejected p-3 text-sm text-status-rejected-foreground"
+              className="space-y-1 rounded-md bg-status-rejected p-3 text-sm text-status-rejected-foreground"
             >
-              {message}
-            </p>
+              <p>{failure.message}</p>
+              {failure.code ? (
+                <p className="text-xs break-all">
+                  รหัสข้อผิดพลาด: <code>{failure.code}</code>
+                </p>
+              ) : null}
+            </div>
           ) : null}
           {/* A full page load, not a router link: this leaves the site for Google. */}
           <a

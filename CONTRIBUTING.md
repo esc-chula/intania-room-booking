@@ -33,7 +33,7 @@ Features must not import from other features. Move shared code up instead.
 
 ## UI rules
 
-- **Mobile first.** The EPIC says most users book from a phone. Write the phone layout first and add `md:` for larger screens, even though the frames are desktop.
+- **Mobile first.** The EPIC says most users book from a phone. Write the phone layout first and add `md:` for larger screens, even though the frames are desktop. The full rules (breakpoints, 44px touch targets, tables as cards, and the checks to run before a pull request) are in [docs/responsive-design.md](docs/responsive-design.md).
 - **Tokens only.** Colours come from `src/styles/globals.css` (`bg-primary`, `text-status-pending-foreground`). If a colour is missing, add a token.
 - **Primitives.** Add them with `bunx shadcn@latest add <component>`, then adjust to match the sheets in `designs/components/`. The CLI currently writes a broken import, `from "cn"`, so change it to `from "@/lib/utils"` (`bun run typecheck` fails until you do).
 - **Statuses.** Use `StatusBadge` and the types in `src/domain/booking.ts`. Never write the Thai label by hand.
@@ -43,6 +43,10 @@ Features must not import from other features. Move shared code up instead.
 ## Data
 
 Client code gets data through tRPC. Add a router in `src/server/api/routers/` and register it in `src/server/api/root.ts`. Add environment variables to `src/env.js` and `.env.example` together.
+
+A procedure that reads from the Go API for the signed-in person passes `ctx` to `fetchSheetBookings(ctx, ...)` (or a helper like it). That call forwards the `room_auth` cookie and a request id, and throws `UNAUTHORIZED` when there is no cookie. A call without it gets a 401 from the API. Failed procedures are logged for you as one JSON line (`src/server/api/error-log.ts`), so do not add your own `console.error`.
+
+When you add an error code or message a person can see, add it to [docs/troubleshooting.md](docs/troubleshooting.md) as well.
 
 ## Tests
 

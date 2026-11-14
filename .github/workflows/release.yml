@@ -1,0 +1,42 @@
+name: Release
+
+# Conventional commits on main open (and keep updating) a release pull request
+# that bumps package.json and CHANGELOG.md. Merging it tags the release,
+# creates the GitHub release, and deploys that tag to production.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v5
+        id: release
+        with:
+          # Pull requests opened with the default token do not start other
+          # workflows, so CI would never run on the release PR. Create a
+          # fine-grained token with contents and pull-requests write and save it
+          # as RELEASE_PLEASE_TOKEN. See docs/deployment.md.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  deploy:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      ref: ${{ needs.release-please.outputs.tag_name }}
+    secrets: inherit

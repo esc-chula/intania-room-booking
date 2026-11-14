@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-// The logo is public/logo.svg, maroon. On a dark background pass `onDark` to turn it white.
+// Note add varience later
 export function Logo({
   className,
   onDark = false,

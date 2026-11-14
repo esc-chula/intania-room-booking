@@ -3,7 +3,19 @@ import { API_ROLES, type SessionUser } from "@/domain/auth";
 
 // Raised when the API cannot answer (down, or sign-in switched off), which is
 // different from "you are not signed in" and must not send people to /login.
-export class AuthUnavailableError extends Error {}
+export class AuthUnavailableError extends Error {
+  /** The HTTP status the API answered with, or null when it never answered. */
+  readonly status: number | null;
+
+  constructor(message: string, options?: { status?: number; cause?: unknown }) {
+    super(
+      message,
+      options?.cause === undefined ? undefined : { cause: options.cause },
+    );
+    this.name = "AuthUnavailableError";
+    this.status = options?.status ?? null;
+  }
+}
 
 const meResponse = z.object({
   id: z.string(),
@@ -18,15 +30,21 @@ export async function fetchCurrentUser(): Promise<SessionUser | null> {
   let response: Response;
   try {
     response = await fetch("/api/v1/auth/me", { cache: "no-store" });
-  } catch {
-    throw new AuthUnavailableError("Cannot reach the API");
+  } catch (cause) {
+    throw new AuthUnavailableError("Cannot reach the API", { cause });
   }
   if (response.status === 401) return null;
   if (!response.ok) {
-    throw new AuthUnavailableError(`Auth API returned ${response.status}`);
+    throw new AuthUnavailableError(`Auth API returned ${response.status}`, {
+      status: response.status,
+    });
   }
   const parsed = meResponse.safeParse(await response.json());
-  if (!parsed.success) throw new AuthUnavailableError("Unexpected response");
+  if (!parsed.success) {
+    throw new AuthUnavailableError("Unexpected response", {
+      cause: parsed.error,
+    });
+  }
   const user = parsed.data;
   return {
     id: user.id,
@@ -38,6 +56,11 @@ export async function fetchCurrentUser(): Promise<SessionUser | null> {
 }
 
 export async function signOut() {
-  const response = await fetch("/api/v1/auth/logout", { method: "POST" });
+  let response: Response;
+  try {
+    response = await fetch("/api/v1/auth/logout", { method: "POST" });
+  } catch (cause) {
+    throw new Error("Cannot reach the API to sign out", { cause });
+  }
   if (!response.ok) throw new Error(`Logout failed with ${response.status}`);
 }

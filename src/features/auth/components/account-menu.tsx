@@ -22,14 +22,19 @@ export function AccountMenu() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [pending, setPending] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   async function handleSignOut() {
     setPending(true);
+    setFailed(false);
     try {
       await signOut();
-    } catch {
+    } catch (error) {
       // The cookie is still set, so stay signed in rather than bounce back.
+      // Say so, or the button looks broken.
+      console.error("Sign out failed", error);
       setPending(false);
+      setFailed(true);
       return;
     }
     // Drop every cached answer so the next person cannot see this one's data,
@@ -58,6 +63,14 @@ export function AccountMenu() {
             <p className="font-medium">{displayName(user)}</p>
             <p className="break-all text-muted-foreground">{user.email}</p>
           </div>
+        ) : null}
+        {failed ? (
+          <p
+            role="alert"
+            className="rounded-md bg-status-rejected p-3 text-sm text-status-rejected-foreground"
+          >
+            ออกจากระบบไม่สำเร็จ กรุณาลองอีกครั้ง
+          </p>
         ) : null}
         <Button
           variant="outline"

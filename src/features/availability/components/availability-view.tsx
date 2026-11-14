@@ -38,8 +38,8 @@ const VIEWS: { value: View; label: string }[] = [
 
 // define status
 const FILTER_STATUSES: AvailabilityStatus[] = [
-  "pending",
   "approved",
+  "pending",
   "cancelled",
 ];
 
@@ -121,7 +121,7 @@ export function AvailabilityView({ role, today }: AvailabilityViewProps) {
       : formatRange(days[0]!, days[days.length - 1]!);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5 2xl:space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div
           role="tablist"
@@ -156,7 +156,7 @@ export function AvailabilityView({ role, today }: AvailabilityViewProps) {
         />
       </div>
 
-      <div className="grid items-start gap-8 lg:grid-cols-[340px_minmax(0,1fr)]">
+      <div className="grid items-start gap-6 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[250px_minmax(0,1fr)] 2xl:grid-cols-[340px_minmax(0,1fr)] 2xl:gap-8">
         <aside className="space-y-6 lg:pt-2">
           <section className="space-y-2">
             <div>

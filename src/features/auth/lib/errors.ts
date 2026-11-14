@@ -1,4 +1,6 @@
-// Codes the API puts in /login?auth_error= (auth/google.go, redirectError).
+// Codes the API puts in /login?auth_error=, from `redirectError` in
+// intania-room-booking-api/internal/adapter/primary/http/auth/google.go.
+// What each one means and where to look: docs/troubleshooting.md.
 const MESSAGES: Record<string, string> = {
   access_denied: "คุณยกเลิกการเข้าสู่ระบบ",
   invalid_callback: "การเข้าสู่ระบบหมดอายุหรือไม่สมบูรณ์ กรุณาลองอีกครั้ง",
@@ -9,7 +11,20 @@ const MESSAGES: Record<string, string> = {
   server_error: "ระบบขัดข้อง กรุณาลองอีกครั้งภายหลัง",
 };
 
-export function authErrorMessage(code: string | undefined) {
+const FALLBACK = "เข้าสู่ระบบไม่สำเร็จ กรุณาลองอีกครั้ง";
+
+// The code comes from the address bar, so only show it when it looks like one
+// of ours. This keeps a crafted link from putting other text in the error box.
+const CODE_PATTERN = /^[a-z][a-z_]{0,39}$/;
+
+/**
+ * What to show for `?auth_error=`: the Thai message, plus the code itself so a
+ * report can say which failure it was (even one this app has no message for).
+ */
+export function describeAuthError(code: string | undefined) {
   if (!code) return null;
-  return MESSAGES[code] ?? "เข้าสู่ระบบไม่สำเร็จ กรุณาลองอีกครั้ง";
+  return {
+    message: MESSAGES[code] ?? FALLBACK,
+    code: CODE_PATTERN.test(code) ? code : null,
+  };
 }
