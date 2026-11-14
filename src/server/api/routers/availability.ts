@@ -20,8 +20,8 @@ const buildingFilters = (selected: string[]) =>
 
 export const availabilityRouter = createTRPCRouter({
   // Building names for the filter. The weekly endpoint lists every room.
-  buildings: publicProcedure.query(async () => {
-    const week = await fetchSheetBookings("weekly", {}, weeklyResponse);
+  buildings: publicProcedure.query(async ({ ctx }) => {
+    const week = await fetchSheetBookings(ctx, "weekly", {}, weeklyResponse);
     return [...new Set(week.rooms.map((room) => room.building))];
   }),
 
@@ -34,10 +34,11 @@ export const availabilityRouter = createTRPCRouter({
         buildings,
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const results = await Promise.all(
         buildingFilters(input.buildings).map((building) =>
           fetchSheetBookings(
+            ctx,
             "calendar",
             {
               year: String(input.year),
@@ -84,10 +85,11 @@ export const availabilityRouter = createTRPCRouter({
         buildings,
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const results = await Promise.all(
         buildingFilters(input.buildings).map((building) =>
           fetchSheetBookings(
+            ctx,
             "weekly",
             {
               start_date: input.startDate,

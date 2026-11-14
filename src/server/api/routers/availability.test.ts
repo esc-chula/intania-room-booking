@@ -1,7 +1,13 @@
 import { afterEach, describe, expect, it, spyOn } from "bun:test";
 import { createCaller } from "@/server/api/root";
+import { createTRPCContext } from "@/server/api/trpc";
 
-const caller = createCaller({ headers: new Headers() });
+// Signed in: the sheet endpoints need the sign-in cookie.
+const caller = createCaller(
+  await createTRPCContext({
+    headers: new Headers({ cookie: "room_auth=session-token" }),
+  }),
+);
 
 const counts = (over: Partial<Record<string, number>> = {}) => ({
   approved: 0,

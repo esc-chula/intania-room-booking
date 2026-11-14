@@ -1,6 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { env } from "@/env";
+import { AUTH_COOKIE_NAME } from "./auth-cookie";
+import { UpstreamApiError } from "./upstream-error";
 
 // Response shapes from intania-room-booking-api/docs/swagger.json.
 export const calendarResponse = z.object({
@@ -43,11 +45,27 @@ export const weeklyResponse = z.object({
   ),
 });
 
+/** The parts of the tRPC context a call to the Go API needs. */
+export type ApiCallContext = { authCookie: string | null; requestId: string };
+
+function codeForStatus(status: number) {
+  if (status === 400) return "BAD_REQUEST";
+  if (status === 401) return "UNAUTHORIZED";
+  if (status === 429) return "TOO_MANY_REQUESTS";
+  return "BAD_GATEWAY";
+}
+
+// The sheet endpoints need the person's own sign-in cookie, so this call is made
+// on their behalf: no cookie, no call.
 export async function fetchSheetBookings<T>(
+  ctx: ApiCallContext,
   path: "calendar" | "weekly",
   params: Record<string, string | undefined>,
   schema: z.ZodType<T>,
 ): Promise<T> {
+  if (!ctx.authCookie) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Not signed in" });
+  }
   const url = new URL(`/api/v1/admin/sheet-bookings/${path}`, env.API_BASE_URL);
   for (const [key, value] of Object.entries(params)) {
     if (value) url.searchParams.set(key, value);
@@ -55,7 +73,13 @@ export async function fetchSheetBookings<T>(
 
   let response: Response;
   try {
-    response = await fetch(url, { cache: "no-store" });
+    response = await fetch(url, {
+      cache: "no-store",
+      headers: {
+        cookie: `${AUTH_COOKIE_NAME}=${ctx.authCookie}`,
+        "x-request-id": ctx.requestId,
+      },
+    });
   } catch (cause) {
     throw new TRPCError({
       code: "BAD_GATEWAY",
@@ -65,8 +89,13 @@ export async function fetchSheetBookings<T>(
   }
   if (!response.ok) {
     throw new TRPCError({
-      code: response.status === 400 ? "BAD_REQUEST" : "BAD_GATEWAY",
+      code: codeForStatus(response.status),
       message: `Booking API returned ${response.status}`,
+      cause: new UpstreamApiError({
+        status: response.status,
+        body: await response.text().catch(() => ""),
+        target: `GET ${url.pathname}`,
+      }),
     });
   }
   const parsed = schema.safeParse(await response.json());
