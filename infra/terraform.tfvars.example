@@ -1,0 +1,6 @@
+# Copy to terraform.tfvars (gitignored). Not secrets, but environment specific.
+team_id                 = "team_xxxxxxxxxxxxxxxxxxxxxxxx"
+project_name            = "intania-room-booking"
+api_base_url_production = "https://api.example.com"
+# api_base_url_preview  = "https://api-staging.example.com"
+# production_domain     = "booking.example.com"

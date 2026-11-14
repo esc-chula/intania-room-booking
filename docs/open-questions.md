@@ -31,6 +31,14 @@ Decisions the team needs before, or while, building. Add new ones here. When one
 | 25 | The API reads OS's internal statuses from the sheet (ส่งเอกสารแล้ว, ลง TIMELINE แล้ว, แก้ไขเอกสาร) and the availability page has only รอดำเนินการ, อนุมัติแล้ว, ยกเลิก and จองซ้อน. Do all three internal statuses count as pending? | TBD | All three show as รอดำเนินการ (see `toBookingStatus` in `src/domain/availability.ts`) |
 | 26 | The user availability page (`/availability`) has no design. Should users see project names and OS's overlap status (จองซ้อน), and the cancelled bookings? | Users see project titles (product owner, 2026-11-09). Overlap status and the rest still open | Users see titles, time slot and status, no จองซ้อน |
 
+## Deployment
+
+| #   | Question                                                                                                            | Owner | Assumption until answered                                                                                                  |
+| --- | ------------------------------------------------------------------------------------------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------- |
+| 27  | Where does the Terraform state for `infra/` live, and in which cloud account? The API repository uses a GCS bucket. | TBD   | A GCS bucket passed at `terraform init`, same layout as the API repository. Nothing is created yet                         |
+| 28  | What are the production API URL, the staging API URL for previews, and the production domain? None is deployed yet. | TBD   | Production URL is a required variable. Previews get no API URL, and production uses the `*.vercel.app` URL                 |
+| 29  | Which Vercel team or account owns the project, and who approves production deploys and Terraform applies?           | TBD   | Set through `VERCEL_ORG_ID` and the `production` and `vercel-infra-apply` environment reviewers. Nothing is configured yet |
+
 ## From the EPIC, waiting on OS
 
 | #   | Question                                                                                                                                                                      | Requirement                    |

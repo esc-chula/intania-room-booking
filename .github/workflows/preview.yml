@@ -1,0 +1,67 @@
+name: Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  VERCEL_CLI_VERSION: 65.15.0
+  VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+jobs:
+  preview:
+    # Forks and Dependabot get no secrets, and release PRs only bump the version.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]' &&
+      !startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the Vercel configuration is present
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "::notice::Vercel is not configured yet (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID). Skipping the preview."
+            echo "SKIP=true" >> "$GITHUB_ENV"
+          fi
+      - uses: actions/checkout@v4
+        if: env.SKIP != 'true'
+      - uses: oven-sh/setup-bun@v2
+        if: env.SKIP != 'true'
+        with:
+          bun-version-file: package.json
+      - uses: actions/setup-node@v4
+        if: env.SKIP != 'true'
+        with:
+          node-version-file: .nvmrc
+      - if: env.SKIP != 'true'
+        run: bun install --frozen-lockfile
+      - name: Pull project settings and environment variables
+        if: env.SKIP != 'true'
+        run: bunx vercel@"$VERCEL_CLI_VERSION" pull --yes --environment=preview --token="$VERCEL_TOKEN"
+      - name: Build
+        if: env.SKIP != 'true'
+        run: bunx vercel@"$VERCEL_CLI_VERSION" build --token="$VERCEL_TOKEN"
+      - name: Deploy
+        id: deploy
+        if: env.SKIP != 'true'
+        run: |
+          url="$(bunx vercel@"$VERCEL_CLI_VERSION" deploy --prebuilt --token="$VERCEL_TOKEN")"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - name: Comment the preview URL
+        if: env.SKIP != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          gh pr comment "$PR" --edit-last --create-if-none --body "Preview: $URL"

@@ -1,0 +1,91 @@
+name: Terraform
+
+# Pull requests only check formatting and validity, with no credentials.
+# A person runs the plan and apply by hand from main; apply waits for approval.
+on:
+  pull_request:
+    paths: [infra/**, .github/workflows/terraform.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: terraform-vercel
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+          terraform_wrapper: false
+      - run: terraform -chdir=infra fmt -check -recursive
+      - run: terraform -chdir=infra init -backend=false -input=false
+      - run: terraform -chdir=infra validate
+
+  plan:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_API_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      TF_VAR_team_id: ${{ vars.VERCEL_ORG_ID }}
+      TF_VAR_api_base_url_production: ${{ vars.API_BASE_URL_PRODUCTION }}
+      TF_VAR_api_base_url_preview: ${{ vars.API_BASE_URL_PREVIEW }}
+      TF_VAR_production_domain: ${{ vars.PRODUCTION_DOMAIN }}
+      STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+      STATE_PREFIX: ${{ vars.TF_STATE_PREFIX }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_TERRAFORM_PLAN_SA }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+          terraform_wrapper: false
+      - name: Plan
+        run: |
+          set -eu
+          : "${VERCEL_API_TOKEN:?}" "${TF_VAR_api_base_url_production:?}" "${STATE_BUCKET:?}" "${STATE_PREFIX:?}"
+          terraform -chdir=infra init -input=false -backend-config="bucket=$STATE_BUCKET" -backend-config="prefix=$STATE_PREFIX"
+          terraform -chdir=infra plan -input=false -out="$RUNNER_TEMP/infra.tfplan"
+          terraform -chdir=infra show -no-color "$RUNNER_TEMP/infra.tfplan" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: ${{ runner.temp }}/infra.tfplan
+          retention-days: 1
+          if-no-files-found: error
+
+  apply:
+    needs: plan
+    runs-on: ubuntu-latest
+    # Add required reviewers to this environment in GitHub.
+    environment: vercel-infra-apply
+    env:
+      VERCEL_API_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+      STATE_PREFIX: ${{ vars.TF_STATE_PREFIX }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_TERRAFORM_SA }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+          terraform_wrapper: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan
+          path: ${{ runner.temp }}
+      - run: terraform -chdir=infra init -input=false -backend-config="bucket=$STATE_BUCKET" -backend-config="prefix=$STATE_PREFIX"
+      - run: terraform -chdir=infra apply -input=false "$RUNNER_TEMP/infra.tfplan"

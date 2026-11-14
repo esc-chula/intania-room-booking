@@ -1,0 +1,70 @@
+name: Deploy production
+
+# Called by release.yml when a release is cut. Also runnable by hand to redeploy
+# a tag, or to roll back by choosing an older tag.
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Release tag to deploy, such as v0.2.0
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Release tag to deploy, such as v0.2.0. Choose an older tag to roll back.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  VERCEL_CLI_VERSION: 65.15.0
+  VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Add required reviewers to this environment in GitHub to gate production.
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Only deploy release tags
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          if ! [[ "$REF" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::\"$REF\" is not a release tag like v1.2.3. Production only deploys releases."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Check the Vercel configuration is present
+        run: |
+          : "${VERCEL_TOKEN:?Set the VERCEL_TOKEN secret}" "${VERCEL_ORG_ID:?Set the VERCEL_ORG_ID variable}" "${VERCEL_PROJECT_ID:?Set the VERCEL_PROJECT_ID variable}"
+      - run: bun install --frozen-lockfile
+      - name: Pull project settings and environment variables
+        run: bunx vercel@"$VERCEL_CLI_VERSION" pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - name: Build
+        run: bunx vercel@"$VERCEL_CLI_VERSION" build --prod --token="$VERCEL_TOKEN"
+      - name: Deploy
+        id: deploy
+        run: |
+          url="$(bunx vercel@"$VERCEL_CLI_VERSION" deploy --prebuilt --prod --token="$VERCEL_TOKEN")"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed ${{ inputs.ref }} to $url" >> "$GITHUB_STEP_SUMMARY"
