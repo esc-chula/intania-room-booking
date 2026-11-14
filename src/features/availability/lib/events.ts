@@ -5,13 +5,13 @@ import type {
 } from "@/domain/availability";
 import { timePart } from "./dates";
 
-// Booking cards in the week and day views use their own colours
-// (Weekly.svg, daily.svg), not the badge colours. Cancelled has no card in the
-// designs, so it keeps its badge colours.
+// Booking cards in the week and day views use their own colours for approved
+// and pending (Weekly.svg, daily.svg). Conflicted and cancelled keep the badge
+// colours, so จองซ้อน looks the same in every view.
 export const EVENT_STYLES: Record<AvailabilityStatus, string> = {
   approved: "bg-event-approved text-event-approved-foreground",
   pending: "bg-event-pending text-event-pending-foreground",
-  conflicted: "bg-event-conflicted text-event-conflicted-foreground",
+  conflicted: "bg-status-conflicted text-status-conflicted-foreground",
   cancelled: "bg-status-cancelled text-status-cancelled-foreground",
 };
 
@@ -19,7 +19,7 @@ export const EVENT_STYLES: Record<AvailabilityStatus, string> = {
 export const EVENT_BORDERS: Record<AvailabilityStatus, string> = {
   approved: "border-event-approved-foreground",
   pending: "border-event-pending-foreground",
-  conflicted: "border-event-conflicted-foreground",
+  conflicted: "border-status-conflicted-foreground/60",
   cancelled: "border-status-cancelled-foreground",
 };
 
@@ -27,7 +27,7 @@ export const EVENT_BORDERS: Record<AvailabilityStatus, string> = {
 export const EVENT_DOTS: Record<AvailabilityStatus, string> = {
   approved: "bg-event-approved-foreground",
   pending: "bg-event-pending-foreground",
-  conflicted: "bg-event-conflicted-foreground",
+  conflicted: "bg-status-conflicted",
   cancelled: "bg-status-cancelled-foreground",
 };
 
