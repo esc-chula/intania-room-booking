@@ -20,7 +20,7 @@ export function AuthGate({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { data: user, isPending, isError, refetch } = useCurrentUser();
+  const { data: user, error, isPending, isError, refetch } = useCurrentUser();
 
   const allowed = user ? canAccess(user.role, area) : false;
 
@@ -33,12 +33,19 @@ export function AuthGate({
     }
   }, [user, allowed, pathname, router]);
 
+  useEffect(() => {
+    if (error) console.error("Sign-in check failed", error);
+  }, [error]);
+
   if (isError) {
     return (
       <div role="alert" className="mx-auto max-w-md space-y-3 p-8 text-center">
         <p className="font-medium">ไม่สามารถตรวจสอบการเข้าสู่ระบบได้</p>
         <p className="text-sm text-muted-foreground">
           ตรวจสอบว่า API ทำงานอยู่ และเปิดระบบเข้าสู่ระบบแล้ว
+        </p>
+        <p className="text-xs break-words text-muted-foreground">
+          รายละเอียด: {error.message}
         </p>
         <Button variant="outline" onClick={() => void refetch()}>
           ลองอีกครั้ง

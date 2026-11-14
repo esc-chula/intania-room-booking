@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { authErrorMessage } from "./errors";
+import { describeAuthError } from "./errors";
 import { rememberNextPath, safeNextPath, takeNextPath } from "./next-path";
 
 describe("safeNextPath", () => {
@@ -30,7 +30,7 @@ describe("remembered path", () => {
   });
 });
 
-describe("authErrorMessage", () => {
+describe("describeAuthError", () => {
   it("has a message for each code the API sends and a fallback", () => {
     for (const code of [
       "access_denied",
@@ -40,9 +40,9 @@ describe("authErrorMessage", () => {
       "identity_conflict",
       "server_error",
     ]) {
-      expect(authErrorMessage(code)).toBeTruthy();
+      expect(describeAuthError(code)?.message).toBeTruthy();
     }
-    expect(authErrorMessage("something_new")).toContain("ไม่สำเร็จ");
-    expect(authErrorMessage(undefined)).toBeNull();
+    expect(describeAuthError("something_new")?.message).toContain("ไม่สำเร็จ");
+    expect(describeAuthError(undefined)).toBeNull();
   });
 });
