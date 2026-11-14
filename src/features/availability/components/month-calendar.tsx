@@ -59,7 +59,7 @@ export function MonthCalendar({
               key={date}
               data-date={date}
               className={cn(
-                "flex min-h-[108px] flex-col gap-1 border-t border-r border-line p-2 [&:nth-child(7n+7)]:border-r-0",
+                "flex min-h-24 flex-col gap-1 border-t border-r border-line p-1.5 2xl:min-h-[108px] 2xl:p-2 [&:nth-child(7n+7)]:border-r-0",
                 (!inMonth || isWeekend) && "bg-surface",
                 isToday && "bg-secondary",
               )}
@@ -80,7 +80,7 @@ export function MonthCalendar({
                   <span
                     key={status}
                     className={cn(
-                      "flex h-6 items-center justify-center truncate rounded-md px-1.5 text-xs font-medium",
+                      "flex h-6 items-center justify-center truncate rounded-md px-1 text-[11px] font-medium whitespace-nowrap xl:text-xs",
                       STATUS_STYLES[status],
                     )}
                   >

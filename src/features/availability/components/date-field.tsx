@@ -49,7 +49,7 @@ export function DateField({
           value={draft ?? isoToDisplay(value)}
           onChange={(event) => handleType(event.target.value)}
           onBlur={() => setDraft(null)}
-          className="h-11 rounded-[10px] pr-9 text-sm font-normal"
+          className="h-11 rounded-[10px] px-3 pr-8 text-sm font-normal"
         />
         <button
           type="button"

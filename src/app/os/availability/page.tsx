@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default function AvailabilityPage() {
   return (
-    <div className="space-y-14">
+    <div className="space-y-6 2xl:space-y-14">
       <PageHeader title="ตรวจสอบห้องว่าง" />
       <AvailabilityView role="os" today={todayInBangkok()} />
     </div>

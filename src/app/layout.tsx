@@ -12,8 +12,8 @@ const plexThai = IBM_Plex_Sans_Thai({
 });
 
 export const metadata: Metadata = {
-  title: "Room Booking System",
-  description: "ระบบจองสถานที่",
+  title: "Intania Room Booking",
+  description: "Intania Room Booking by ESC",
   icons: [{ rel: "icon", url: "/logo.svg", type: "image/svg+xml" }],
 };
 
