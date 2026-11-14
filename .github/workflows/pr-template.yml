@@ -6,6 +6,8 @@ on:
 
 jobs:
   template:
+    # Release pull requests are written by release-please, not from the template.
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     runs-on: ubuntu-latest
     steps:
       # The body goes through an environment variable, never straight into the
@@ -21,7 +23,8 @@ jobs:
               fail=1
             fi
           done
-          if [ "$(grep -c '^- \[[ xX]\]' <<<"$BODY")" -lt  ]; then
+          # The template has 5 checklist items. Change this if it gains or loses one.
+          if [ "$(grep -c '^- \[[ xX]\]' <<<"$BODY")" -lt 5 ]; then
             echo "::error::The checklist items from the template are missing."
             fail=1
           fi
