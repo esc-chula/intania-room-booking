@@ -35,6 +35,7 @@ designs/                 Design exports (SVG), read-only inputs from design
 docs/
   Room_Booking_System_EPIC.md   Requirements, the source of truth
   design-map.md          Which design and requirement belongs to which route
+  troubleshooting.md     Error codes, where each is raised, where to read the logs
   open-questions.md      Unresolved decisions. Check here before guessing
   adr/                   Technical decisions and why they were made
 src/
@@ -42,7 +43,8 @@ src/
     (auth)/              /login
     (user)/              User A and B screens: /home, /requests, /profile
     os/                  OS screens: /os/*
-    api/trpc/            tRPC endpoint
+    api/trpc/            tRPC route, reached as /api/v1/trpc (see ADR 0002)
+    error.tsx, not-found.tsx, global-error.tsx   Error and 404 screens
   features/<name>/       Code for one feature: components and hooks
   components/ui/         Generic primitives (shadcn/ui)
   components/layout/     App shell and navigation
@@ -59,3 +61,5 @@ src/
 
 1. [CONTRIBUTING.md](CONTRIBUTING.md): how we work together
 2. [docs/design-map.md](docs/design-map.md): find your screen
+3. [docs/deployment.md](docs/deployment.md): how releases and deploys work
+4. [docs/troubleshooting.md](docs/troubleshooting.md): something failed on the deployed site
