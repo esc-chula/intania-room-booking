@@ -21,12 +21,12 @@ export function LoginCard({ next, error }: { next?: string; error?: string }) {
   }, [user, target, router]);
 
   return (
-    <div className="h-auto w-full max-w-5xl rounded-2xl bg-card p-10 shadow-lg md:p-12">
+    <div className="h-auto w-full max-w-5xl rounded-2xl bg-card p-6 shadow-lg sm:p-10 md:p-12">
       <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
         <div className="space-y-8">
           <Logo className="size-16" />
           <h1 className="pt-4 text-3xl font-semibold">เข้าสู่ระบบ</h1>
-          <p className="text-6xl font-bold tracking-wide text-primary">
+          <p className="text-5xl font-bold tracking-wide text-primary md:text-6xl">
             INTANIA
           </p>
           <p className="text-sm text-muted-foreground">
