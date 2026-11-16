@@ -8,6 +8,15 @@ export const env = createEnv({
    */
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
+    // The Go API's real origin, set only when the site forwards the API through
+    // its own host (docs/adr/0002-auth.md, "Proxy mode"). Read by next.config.js
+    // at build time, so a change needs a new deployment.
+    API_PROXY_TARGET: z
+      .string()
+      .trim()
+      .url()
+      .transform((url) => url.replace(/\/+$/, ""))
+      .optional(),
   },
 
   /**
@@ -34,6 +43,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
+    API_PROXY_TARGET: process.env.API_PROXY_TARGET,
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   },
   /**

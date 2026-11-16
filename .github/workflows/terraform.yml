@@ -36,6 +36,7 @@ jobs:
       VERCEL_API_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       TF_VAR_team_id: ${{ vars.VERCEL_ORG_ID }}
       TF_VAR_api_base_url_production: ${{ vars.API_BASE_URL_PRODUCTION }}
+      TF_VAR_api_proxy_target: ${{ vars.API_PROXY_TARGET }}
       TF_VAR_api_base_url_preview: ${{ vars.API_BASE_URL_PREVIEW }}
       TF_VAR_production_domain: ${{ vars.PRODUCTION_DOMAIN }}
       STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}

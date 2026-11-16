@@ -47,7 +47,7 @@ Checking `invalid_callback` without a browser: run `curl -si <API>/auth/google/l
 Sign-in finished, but `GET <API>/api/v1/auth/me` answers 401 in the Network tab, so the browser did not send `room_auth`. Check, in this order:
 
 1. `NEXT_PUBLIC_API_BASE_URL` is the same origin as the API's `GOOGLE_REDIRECT_URL`. The cookie belongs to that host, so another host (such as the API's second Cloud Run hostname) never receives it.
-2. Third-party cookies. If this site and the API are on different sites (`*.vercel.app` and `*.run.app`), the cookie is a third-party cookie, and Safari and some other browsers block it. Try Chrome, and see open question 30.
+2. Third-party cookies. If this site and the API are on different sites (`*.vercel.app` and `*.run.app`), the cookie is a third-party cookie, and Safari and some other browsers block it. Try Chrome, and see open question 30. In the Network tab, the failed `auth/me` request shows the cookie as blocked in its Cookies tab, and the 401 body is `invalid authentication cookie`. The fix without a shared domain is proxy mode ([ADR 0002](adr/0002-auth.md#proxy-mode-no-shared-domain)).
 3. The cookie lasts one hour (`room_auth`).
 
 ## Data errors (availability)

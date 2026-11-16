@@ -41,7 +41,7 @@ Do this with the Vercel account and GitHub organisation that will own the deploy
    | `VERCEL_PROJECT_ID`                                             | `terraform output -raw project_id`                               |
    | `VERCEL_ORG_ID`                                                 | The team ID (personal accounts: the account ID in the dashboard) |
    | `API_BASE_URL_PRODUCTION`                                       | The API's origin, the same as its `GOOGLE_REDIRECT_URL` origin   |
-   | `API_BASE_URL_PREVIEW`, `PRODUCTION_DOMAIN`                     | Optional                                                         |
+   | `API_BASE_URL_PREVIEW`, `PRODUCTION_DOMAIN`, `API_PROXY_TARGET` | Optional. `API_PROXY_TARGET` turns on proxy mode (see below)     |
    | `TF_STATE_BUCKET`, `TF_STATE_PREFIX`                            | Same as `backend.hcl`                                            |
    | `GCP_WIF_PROVIDER`, `GCP_TERRAFORM_SA`, `GCP_TERRAFORM_PLAN_SA` | Workload identity federation, as in the API repository           |
 
@@ -53,7 +53,7 @@ The preview and production jobs fail early, or skip with a notice for previews, 
 
 ## Secrets and environment variables
 
-`NEXT_PUBLIC_API_BASE_URL` is the only variable the app reads (`src/env.js`). It is the Go API's origin, and the browser calls the API there directly, so it is built into the app: `vercel pull` fetches it before `vercel build`, and a change needs a new deployment. Terraform owns it (from the `API_BASE_URL_PRODUCTION` and `API_BASE_URL_PREVIEW` variables): change it in `infra/` and re-apply, not in the Vercel dashboard. If it is missing, the app builds against `http://localhost:8080` and nothing can sign in. Do not put secrets in `NEXT_PUBLIC_*` variables.
+`NEXT_PUBLIC_API_BASE_URL` is the main variable the app reads (`src/env.js`); `API_PROXY_TARGET` is the optional second one (proxy mode, below). It is the Go API's origin, and the browser calls the API there directly, so it is built into the app: `vercel pull` fetches it before `vercel build`, and a change needs a new deployment. Terraform owns it (from the `API_BASE_URL_PRODUCTION` and `API_BASE_URL_PREVIEW` variables): change it in `infra/` and re-apply, not in the Vercel dashboard. If it is missing, the app builds against `http://localhost:8080` and nothing can sign in. Do not put secrets in `NEXT_PUBLIC_*` variables.
 
 Sign-in only works when these agree (see [ADR 0002](adr/0002-auth.md)):
 
@@ -65,7 +65,7 @@ Sign-in only works when these agree (see [ADR 0002](adr/0002-auth.md)):
 
 Previews have their own origin, so the API's CORS rejects them and they cannot sign in. If `API_BASE_URL_PREVIEW` is unset, previews build against the `localhost` default and cannot reach an API.
 
-If this site and the API are on different sites (for example `*.vercel.app` and `*.run.app`), the API's cookie is a third-party cookie, and Safari and some other browsers block it. See open question 30.
+If this site and the API are on different sites (for example `*.vercel.app` and `*.run.app`), the API's cookie is a third-party cookie, and Safari and some other browsers block it. Without a shared domain, use proxy mode: set the Terraform variable `api_proxy_target` (the `API_PROXY_TARGET` repository variable) to the API's origin, set `API_BASE_URL_PRODUCTION` to this site's own origin, change the API's `GOOGLE_REDIRECT_URL` to `<this site>/auth/google/callback` (and register it in Google Cloud Console), then apply Terraform and redeploy. See [ADR 0002](adr/0002-auth.md#proxy-mode-no-shared-domain) and open question 30.
 
 ## Rollback
 

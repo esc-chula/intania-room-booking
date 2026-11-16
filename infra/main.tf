@@ -1,6 +1,7 @@
 # GitHub Actions passes unset variables as empty strings, so treat "" like null.
 locals {
   team_id     = var.team_id == "" ? null : var.team_id
+  has_proxy   = var.api_proxy_target != null && var.api_proxy_target != ""
   has_preview = var.api_base_url_preview != null && var.api_base_url_preview != ""
   has_domain  = var.production_domain != null && var.production_domain != ""
 }
@@ -23,6 +24,20 @@ resource "vercel_project_environment_variable" "api_base_url_production" {
   team_id    = local.team_id
   key        = "NEXT_PUBLIC_API_BASE_URL"
   value      = var.api_base_url_production
+  target     = ["production"]
+  sensitive  = false
+}
+
+# Proxy mode: next.config.js forwards the API through the site, so the cookie
+# belongs to the site's own host. Production only, because the Google callback
+# address is registered for one host.
+resource "vercel_project_environment_variable" "api_proxy_target" {
+  count = local.has_proxy ? 1 : 0
+
+  project_id = vercel_project.web.id
+  team_id    = local.team_id
+  key        = "API_PROXY_TARGET"
+  value      = var.api_proxy_target
   target     = ["production"]
   sensitive  = false
 }
