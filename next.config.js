@@ -2,11 +2,15 @@
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
  * for Docker builds.
  */
-import "./src/env.js";
+import { env } from "./src/env.js";
+import { apiRewrites } from "./src/lib/api-proxy.js";
 
-// The browser calls the Go API directly (see docs/adr/0002-auth.md), so there
-// are no rewrites to it. Importing the env file above still validates it at build time.
+// By default the browser calls the Go API directly (docs/adr/0002-auth.md).
+// With API_PROXY_TARGET set, the API is forwarded through this site instead, so
+// its sign-in cookie is first-party and Safari and iOS do not block it.
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  rewrites: async () => apiRewrites(env.API_PROXY_TARGET),
+};
 
 export default config;

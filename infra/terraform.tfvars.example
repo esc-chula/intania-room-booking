@@ -2,5 +2,7 @@
 team_id                 = "team_xxxxxxxxxxxxxxxxxxxxxxxx"
 project_name            = "intania-room-booking"
 api_base_url_production = "https://api.example.com"
+# Proxy mode: api_base_url_production is then this site's own origin.
+# api_proxy_target      = "https://api.example.run.app"
 # api_base_url_preview  = "https://api-staging.example.com"
 # production_domain     = "booking.example.com"
