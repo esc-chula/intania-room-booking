@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { API_ROLES, type SessionUser } from "@/domain/auth";
+import { apiFetch } from "@/lib/api";
 
 // Raised when the API cannot answer (down, or sign-in switched off), which is
 // different from "you are not signed in" and must not send people to /login.
@@ -29,7 +30,7 @@ const meResponse = z.object({
 export async function fetchCurrentUser(): Promise<SessionUser | null> {
   let response: Response;
   try {
-    response = await fetch("/api/v1/auth/me", { cache: "no-store" });
+    response = await apiFetch("/api/v1/auth/me");
   } catch (cause) {
     throw new AuthUnavailableError("Cannot reach the API", { cause });
   }
@@ -58,7 +59,7 @@ export async function fetchCurrentUser(): Promise<SessionUser | null> {
 export async function signOut() {
   let response: Response;
   try {
-    response = await fetch("/api/v1/auth/logout", { method: "POST" });
+    response = await apiFetch("/api/v1/auth/logout", { method: "POST" });
   } catch (cause) {
     throw new Error("Cannot reach the API to sign out", { cause });
   }

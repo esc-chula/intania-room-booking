@@ -9,10 +9,9 @@
 import { initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import { readAuthCookie } from "./auth-cookie";
 
-// Ids we are willing to repeat in logs and send to the API. Anything else could
-// forge a log line, so it is replaced.
+// Ids we are willing to repeat in logs. Anything else could forge a log line,
+// so it is replaced.
 const SAFE_REQUEST_ID = /^[\w.-]{1,128}$/;
 
 /**
@@ -31,10 +30,8 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   const incoming = opts.headers.get("x-request-id");
   return {
     ...opts,
-    // The API's sign-in cookie. It only reaches this server when the browser
-    // calls tRPC under /api/v1 (docs/adr/0002-auth.md).
-    authCookie: readAuthCookie(opts.headers.get("cookie")),
-    // Sent on to the Go API as X-Request-Id, so both logs share one id.
+    // Shown in a failed response and written in its log line, so one can be
+    // found from the other.
     requestId:
       incoming && SAFE_REQUEST_ID.test(incoming)
         ? incoming
@@ -56,7 +53,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       ...shape,
       data: {
         ...shape.data,
-        // Quote this to find the matching log lines (here and in the API).
+        // Quote this to find the matching log line.
         requestId: ctx?.requestId ?? null,
         zodError:
           error.cause instanceof ZodError ? error.cause.flatten() : null,

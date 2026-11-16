@@ -8,15 +8,6 @@ export const env = createEnv({
    */
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
-    // Base URL of the Go booking API (intania-room-booking-api).
-    // Spaces and trailing slashes are dropped: next.config.js appends paths such
-    // as "/api/v1/..." to it, and "https://host/ " would break every rewrite.
-    API_BASE_URL: z
-      .string()
-      .trim()
-      .url()
-      .default("http://localhost:8080")
-      .transform((url) => url.replace(/\/+$/, "")),
   },
 
   /**
@@ -25,7 +16,16 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    // Origin of the Go booking API (intania-room-booking-api). The browser calls it
+    // directly, so this must be the same origin as the API's GOOGLE_REDIRECT_URL:
+    // its sign-in cookies belong to that host alone. Spaces and trailing slashes
+    // are dropped because paths such as "/api/v1/..." are added to it.
+    NEXT_PUBLIC_API_BASE_URL: z
+      .string()
+      .trim()
+      .url()
+      .default("http://localhost:8080")
+      .transform((url) => url.replace(/\/+$/, "")),
   },
 
   /**
@@ -34,8 +34,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
-    API_BASE_URL: process.env.API_BASE_URL,
-    // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

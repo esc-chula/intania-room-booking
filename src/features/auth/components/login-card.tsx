@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/layout/logo";
 import { homeFor } from "@/domain/auth";
+import { apiUrl } from "@/lib/api";
 import { useCurrentUser } from "../hooks";
 import { describeAuthError } from "../lib/errors";
 import { rememberNextPath, safeNextPath } from "../lib/next-path";
@@ -46,9 +47,11 @@ export function LoginCard({ next, error }: { next?: string; error?: string }) {
               ) : null}
             </div>
           ) : null}
-          {/* A full page load, not a router link: this leaves the site for Google. */}
+          {/* A full page load to the API itself, not through this site: the API
+              keeps its sign-in state in a cookie for its own host, and Google
+              returns the browser to that same host. */}
           <a
-            href="/auth/google/login"
+            href={apiUrl("/auth/google/login").href}
             onClick={() => rememberNextPath(target)}
             className="flex h-11 w-full items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground outline-none hover:bg-primary-hover focus-visible:ring-[3px] focus-visible:ring-ring/50"
           >

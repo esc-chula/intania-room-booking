@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CheckboxList } from "@/components/checkbox-list";
 import { SearchInput } from "@/components/search-input";
@@ -8,7 +9,6 @@ import { STATUS_LABELS } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import type { AvailabilityStatus } from "@/domain/availability";
 import { cn } from "@/lib/utils";
-import { api } from "@/trpc/react";
 import {
   addDays,
   addMonths,
@@ -21,7 +21,9 @@ import {
   weekDays,
   weekdayLabel,
 } from "../lib/dates";
+import { useBuildings, useCalendar, useSchedule } from "../hooks";
 import { buildingLabel, sortBuildings } from "../lib/buildings";
+import { SheetApiError } from "../lib/sheet-api";
 import { DateField } from "./date-field";
 import { MonthCalendar } from "./month-calendar";
 import { DayList } from "./day-list";
@@ -78,18 +80,15 @@ export function AvailabilityView({ role, today }: AvailabilityViewProps) {
   const weekStart = startOfWeek(cursor);
   const days = view === "day" ? [cursor] : weekDays(weekStart);
 
-  const buildingList = api.availability.buildings.useQuery();
-  const calendar = api.availability.calendar.useQuery(
-    { year, month, buildings },
-    { enabled: view === "month" },
-  );
-  const schedule = api.availability.schedule.useQuery(
+  const buildingList = useBuildings();
+  const calendar = useCalendar({ year, month, buildings }, view === "month");
+  const schedule = useSchedule(
     {
       startDate: days[0]!,
       endDate: days[days.length - 1]!,
       buildings,
     },
-    { enabled: view !== "month" },
+    view !== "month",
   );
 
   const query = view === "month" ? calendar : schedule;
@@ -271,7 +270,17 @@ export function AvailabilityView({ role, today }: AvailabilityViewProps) {
               role="alert"
               className="m-4 rounded-md border border-destructive/30 bg-status-rejected p-4 text-sm text-status-rejected-foreground"
             >
-              โหลดข้อมูลไม่สำเร็จ ตรวจสอบว่า API ทำงานอยู่
+              {query.error instanceof SheetApiError &&
+              query.error.status === 401 ? (
+                <>
+                  เซสชันหมดอายุ{" "}
+                  <Link href="/login" className="underline">
+                    เข้าสู่ระบบอีกครั้ง
+                  </Link>
+                </>
+              ) : (
+                "โหลดข้อมูลไม่สำเร็จ ตรวจสอบว่า API ทำงานอยู่"
+              )}
               <Button
                 variant="outline"
                 size="sm"
@@ -280,6 +289,9 @@ export function AvailabilityView({ role, today }: AvailabilityViewProps) {
               >
                 ลองอีกครั้ง
               </Button>
+              <p className="mt-2 text-xs break-words">
+                รายละเอียด: {query.error?.message}
+              </p>
             </div>
           ) : query.isLoading ? (
             <p className="py-12 text-center text-sm text-muted-foreground">
