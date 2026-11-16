@@ -50,10 +50,13 @@ export function AccountMenu() {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="flex items-center gap-2 rounded-md text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          aria-label={user ? displayName(user) : "บัญชี"}
+          className="flex min-h-11 items-center gap-2 rounded-md px-1 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 lg:min-h-0"
         >
           <Logo className="size-6" />
-          {user ? displayName(user) : "บัญชี"}
+          <span className="hidden sm:inline">
+            {user ? displayName(user) : "บัญชี"}
+          </span>
           <ChevronDown aria-hidden className="size-4" />
         </button>
       </PopoverTrigger>

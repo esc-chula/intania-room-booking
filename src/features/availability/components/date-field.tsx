@@ -49,13 +49,13 @@ export function DateField({
           value={draft ?? isoToDisplay(value)}
           onChange={(event) => handleType(event.target.value)}
           onBlur={() => setDraft(null)}
-          className="h-11 rounded-[10px] px-3 pr-8 text-sm font-normal"
+          className="h-11 rounded-[10px] px-3 pr-8 text-base font-normal lg:text-sm"
         />
         <button
           type="button"
           aria-label={`เลือก${label}`}
           onClick={() => picker.current?.showPicker()}
-          className="absolute top-1/2 right-3 -translate-y-1/2 rounded text-muted-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          className="absolute top-1/2 right-0 grid size-11 -translate-y-1/2 place-items-center rounded text-muted-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 lg:right-2 lg:size-8"
         >
           <Calendar aria-hidden className="size-4" />
         </button>

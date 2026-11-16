@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { CheckboxList } from "@/components/checkbox-list";
 import { SearchInput } from "@/components/search-input";
 import { STATUS_LABELS } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import type { AvailabilityStatus } from "@/domain/availability";
 import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@/lib/use-media-query";
 import {
   addDays,
   addMonths,
@@ -22,9 +22,8 @@ import {
   weekdayLabel,
 } from "../lib/dates";
 import { useBuildings, useCalendar, useSchedule } from "../hooks";
-import { buildingLabel, sortBuildings } from "../lib/buildings";
 import { SheetApiError } from "../lib/sheet-api";
-import { DateField } from "./date-field";
+import { FILTER_STATUSES, FilterPanel, FilterSheet } from "./filter-panel";
 import { MonthCalendar } from "./month-calendar";
 import { DayList } from "./day-list";
 import { ScheduleGrid } from "./schedule-grid";
@@ -38,20 +37,6 @@ const VIEWS: { value: View; label: string }[] = [
   { value: "day", label: "รายวัน" },
 ];
 
-// define status
-const FILTER_STATUSES: AvailabilityStatus[] = [
-  "approved",
-  "pending",
-  "cancelled",
-];
-
-// Chip colours of the filter panel, which differ from the calendar chips.
-const FILTER_CHIP_STYLES: Partial<Record<AvailabilityStatus, string>> = {
-  pending: "bg-filter-pending",
-  approved: "bg-status-approved",
-  cancelled: "bg-filter-cancelled",
-};
-
 type AvailabilityViewProps = {
   // os will see overlapping booking while user is not
   role: "os" | "user";
@@ -62,7 +47,12 @@ type AvailabilityViewProps = {
 export function AvailabilityView({ role, today }: AvailabilityViewProps) {
   const isOs = role === "os";
 
-  const [view, setView] = useState<View>("month");
+  // Phones open on the day view, the one that fits a narrow screen. Until the
+  // browser has answered (null) nothing is fetched, so no wrong view loads first.
+  const isPhone = useMediaQuery("(max-width: 767px)");
+  const [chosenView, setChosenView] = useState<View | null>(null);
+  const view: View = chosenView ?? (isPhone ? "day" : "month");
+  const ready = isPhone !== null;
   const [cursor, setCursor] = useState(today);
   const [buildings, setBuildings] = useState<string[]>([]);
   const [filterStatuses, setFilterStatuses] =
@@ -81,14 +71,17 @@ export function AvailabilityView({ role, today }: AvailabilityViewProps) {
   const days = view === "day" ? [cursor] : weekDays(weekStart);
 
   const buildingList = useBuildings();
-  const calendar = useCalendar({ year, month, buildings }, view === "month");
+  const calendar = useCalendar(
+    { year, month, buildings },
+    ready && view === "month",
+  );
   const schedule = useSchedule(
     {
       startDate: days[0]!,
       endDate: days[days.length - 1]!,
       buildings,
     },
-    view !== "month",
+    ready && view !== "month",
   );
 
   const query = view === "month" ? calendar : schedule;
@@ -114,6 +107,29 @@ export function AvailabilityView({ role, today }: AvailabilityViewProps) {
     );
   }
 
+  const filterProps = {
+    buildingList,
+    buildings,
+    onBuildingsChange: setBuildings,
+    from,
+    to,
+    onFromChange: setFrom,
+    onToChange: setTo,
+    statuses: filterStatuses,
+    onToggleStatus: toggleStatus,
+  };
+  const activeFilters =
+    buildings.length +
+    (from || to ? 1 : 0) +
+    (filterStatuses.length === FILTER_STATUSES.length ? 0 : 1);
+
+  function clearFilters() {
+    setBuildings([]);
+    setFrom("");
+    setTo("");
+    setFilterStatuses(FILTER_STATUSES);
+  }
+
   const title =
     view === "month"
       ? formatMonthTitle(cursor)
@@ -132,9 +148,9 @@ export function AvailabilityView({ role, today }: AvailabilityViewProps) {
               type="button"
               role="tab"
               aria-selected={view === item.value}
-              onClick={() => setView(item.value)}
+              onClick={() => setChosenView(item.value)}
               className={cn(
-                "h-[41px] min-w-[105px] rounded-lg border px-4 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                "h-11 min-w-[105px] rounded-lg border px-4 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 lg:h-[41px]",
                 view === item.value
                   ? "border-border bg-card font-medium text-primary"
                   : "border-transparent text-muted-foreground",
@@ -144,92 +160,29 @@ export function AvailabilityView({ role, today }: AvailabilityViewProps) {
             </button>
           ))}
         </div>
-        {/* The month API counts bookings per day and has no rooms to search. */}
-        <SearchInput
-          className="w-full sm:w-96 [&_input]:h-11 [&_input]:rounded-[10px] [&_input]:border-neutral-300"
-          placeholder="ค้นหาชื่อห้อง เช่น 301"
-          aria-label="ค้นหาห้อง"
-          value={search}
-          disabled={view === "month"}
-          onChange={(event) => setSearch(event.target.value)}
-        />
+        <div className="flex w-full gap-2 sm:w-auto">
+          {/* The month API counts bookings per day and has no rooms to search. */}
+          <SearchInput
+            className="min-w-0 flex-1 sm:w-80 sm:flex-none lg:w-96 [&_input]:h-11 [&_input]:rounded-[10px] [&_input]:border-neutral-300"
+            placeholder="ค้นหาชื่อห้อง เช่น 301"
+            aria-label="ค้นหาห้อง"
+            value={search}
+            disabled={view === "month"}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+          <div className="lg:hidden">
+            <FilterSheet
+              {...filterProps}
+              activeCount={activeFilters}
+              onClear={clearFilters}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="grid items-start gap-6 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[250px_minmax(0,1fr)] 2xl:grid-cols-[340px_minmax(0,1fr)] 2xl:gap-8">
-        <aside className="space-y-6 lg:pt-2">
-          <section className="space-y-2">
-            <div>
-              <h2 className="text-base font-semibold">อาคาร/สถานที่</h2>
-              <p className="text-sm text-muted-foreground">
-                เลือกได้มากกว่า 1 รายการ
-              </p>
-            </div>
-            <div className="rounded-[10px] border bg-card p-1">
-              {buildingList.isLoading ? (
-                <p className="text-xs text-muted-foreground">กำลังโหลด...</p>
-              ) : (
-                <CheckboxList
-                  options={sortBuildings(buildingList.data ?? []).map(
-                    (building) => ({
-                      value: building,
-                      label: buildingLabel(building),
-                    }),
-                  )}
-                  value={buildings}
-                  onChange={setBuildings}
-                  itemClassName="py-2"
-                />
-              )}
-            </div>
-          </section>
-
-          <hr className="border-border" />
-
-          <section className="space-y-3">
-            <h2 className="text-base font-semibold">ช่วงวันที่ใช้งาน</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <DateField
-                label="วันเริ่มต้น"
-                value={from}
-                max={to || undefined}
-                onChange={setFrom}
-              />
-              <DateField
-                label="วันสิ้นสุด"
-                value={to}
-                min={from || undefined}
-                onChange={setTo}
-              />
-            </div>
-          </section>
-
-          <hr className="border-border" />
-
-          <section className="space-y-4">
-            <div>
-              <h2 className="text-base font-semibold">สถานะเอกสาร</h2>
-              <p className="text-sm text-muted-foreground">
-                เลือกสถานะที่ต้องการแสดง
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {FILTER_STATUSES.map((status) => (
-                <button
-                  key={status}
-                  type="button"
-                  aria-pressed={filterStatuses.includes(status)}
-                  onClick={() => toggleStatus(status)}
-                  className={cn(
-                    "h-8 min-w-[100px] rounded-full px-4 text-sm font-medium whitespace-nowrap text-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
-                    FILTER_CHIP_STYLES[status],
-                    !filterStatuses.includes(status) && "opacity-40",
-                  )}
-                >
-                  {STATUS_LABELS[status]}
-                </button>
-              ))}
-            </div>
-          </section>
+        <aside className="hidden lg:block lg:pt-2">
+          <FilterPanel {...filterProps} />
         </aside>
 
         <section className="min-w-0 overflow-hidden rounded-xl border border-line bg-card">
@@ -293,7 +246,7 @@ export function AvailabilityView({ role, today }: AvailabilityViewProps) {
                 รายละเอียด: {query.error?.message}
               </p>
             </div>
-          ) : query.isLoading ? (
+          ) : query.isLoading || !ready ? (
             <p className="py-12 text-center text-sm text-muted-foreground">
               กำลังโหลด...
             </p>
@@ -357,6 +310,7 @@ function Legend({ statuses }: { statuses: AvailabilityStatus[] }) {
 }
 
 // The seven days of the selected week, shown above the day list (daily.svg).
+// On a phone they scroll sideways, each wide enough to read and tap.
 function DayTabs({
   days,
   selected,
@@ -366,8 +320,19 @@ function DayTabs({
   selected: string;
   onSelect: (day: string) => void;
 }) {
+  const strip = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    strip.current
+      ?.querySelector('[aria-pressed="true"]')
+      ?.scrollIntoView?.({ inline: "center", block: "nearest" });
+  }, [selected]);
+
   return (
-    <div className="grid grid-cols-7 gap-2 border-t border-line p-3">
+    <div
+      ref={strip}
+      className="flex snap-x gap-2 overflow-x-auto border-t border-line p-3 md:grid md:grid-cols-7 md:overflow-visible"
+    >
       {days.map((day) => {
         const weekday = weekdayLabel(day);
         const weekend = weekday === "เสาร์" || weekday === "อาทิตย์";
@@ -378,7 +343,7 @@ function DayTabs({
             aria-pressed={day === selected}
             onClick={() => onSelect(day)}
             className={cn(
-              "h-[46px] rounded-lg text-sm text-weekday-foreground",
+              "h-12 min-w-24 shrink-0 snap-center rounded-lg text-sm whitespace-nowrap text-weekday-foreground md:h-[46px] md:min-w-0 md:shrink",
               weekend && "bg-surface",
               day === selected && "bg-primary text-primary-foreground",
             )}

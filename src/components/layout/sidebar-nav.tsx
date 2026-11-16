@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -42,11 +42,20 @@ const ITEM_ACTIVE = "bg-sidebar-foreground text-primary";
 
 export function SidebarNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
+  const nav = useRef<HTMLElement>(null);
+
+  // In the scrolling top bar the current page can start off screen. Bring it in.
+  useEffect(() => {
+    nav.current
+      ?.querySelector('[aria-current="page"]')
+      ?.scrollIntoView?.({ inline: "center", block: "nearest" });
+  }, [pathname]);
 
   return (
     <nav
+      ref={nav}
       aria-label="เมนูหลัก"
-      className="flex gap-1 overflow-x-auto md:flex-col md:gap-3 md:overflow-visible md:px-px"
+      className="flex gap-1 overflow-x-auto xl:flex-col xl:gap-3 xl:overflow-visible xl:px-px"
     >
       {items.map((item) =>
         item.children ? (
@@ -83,7 +92,7 @@ function SidebarGroup({ item, pathname }: { item: NavItem; pathname: string }) {
         <Chevron aria-hidden className="size-4 shrink-0" />
       </button>
       {open ? (
-        <ul className="relative flex gap-1 md:ml-[26px] md:flex-col md:gap-0 md:before:absolute md:before:inset-y-1 md:before:-left-1.5 md:before:w-px md:before:bg-sidebar-foreground">
+        <ul className="relative flex gap-1 xl:ml-[26px] xl:flex-col xl:gap-0 xl:before:absolute xl:before:inset-y-1 xl:before:-left-1.5 xl:before:w-px xl:before:bg-sidebar-foreground">
           {children.map((child) => (
             <li key={child.href} className="shrink-0">
               <SidebarLink
