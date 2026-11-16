@@ -55,7 +55,7 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
     <nav
       ref={nav}
       aria-label="เมนูหลัก"
-      className="flex gap-1 overflow-x-auto xl:flex-col xl:gap-3 xl:overflow-visible xl:px-px"
+      className="flex gap-1 overflow-x-auto lg:flex-col lg:gap-3 lg:overflow-visible lg:px-px"
     >
       {items.map((item) =>
         item.children ? (
@@ -92,7 +92,7 @@ function SidebarGroup({ item, pathname }: { item: NavItem; pathname: string }) {
         <Chevron aria-hidden className="size-4 shrink-0" />
       </button>
       {open ? (
-        <ul className="relative flex gap-1 xl:ml-[26px] xl:flex-col xl:gap-0 xl:before:absolute xl:before:inset-y-1 xl:before:-left-1.5 xl:before:w-px xl:before:bg-sidebar-foreground">
+        <ul className="relative flex gap-1 lg:ml-[26px] lg:flex-col lg:gap-0 lg:before:absolute lg:before:inset-y-1 lg:before:-left-1.5 lg:before:w-px lg:before:bg-sidebar-foreground">
           {children.map((child) => (
             <li key={child.href} className="shrink-0">
               <SidebarLink

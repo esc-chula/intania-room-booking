@@ -41,7 +41,7 @@ The stack is Next.js and Tailwind CSS v4, so everything below is written as Tail
 
 ### 6. Navigation and primary actions
 
-- Collapse the sidebar into a compact top bar below `xl` and expand it from `xl` up (`AppShell` does this). A 224px sidebar leaves a 768px tablet 544px, which cuts the month calendar (640px) off at Sunday.
+- Collapse the sidebar into a compact top bar below `lg` (1024px) and expand it from `lg` up (`AppShell` does this). A 224px sidebar leaves a 768px tablet 544px, which cuts the month calendar (640px) off at Sunday. From `lg` the sidebar and the content inset are percentages of the window, taken from the 1920px design (280px is `14.58vw`, 64px is `3.33vw`), with a `min-w-52` floor so a laptop at 1024 to 1280px keeps the designed sidebar instead of a phone-style top bar.
 - Keep one way to go home or back visible on every screen without extra taps.
 - Keep the main action (submit, approve, book) reachable on a phone. For a long form or detail page, use a sticky bar at the bottom of the screen (`sticky bottom-0`, with `pb-[env(safe-area-inset-bottom)]`), not a button at the end of a long scroll.
 - Put filters and sort controls in a dialog or bottom sheet on a phone, not in a sidebar. The availability screens show them beside the calendar from `lg` and in a bottom sheet below that (`FilterSheet` in `filter-panel.tsx`), so the calendar comes first.
@@ -83,7 +83,7 @@ The stack is Next.js and Tailwind CSS v4, so everything below is written as Tail
 
 These break the rules above. Fix them when you touch the file, or in a dedicated pull request. Do not copy them into new code.
 
-- `src/features/availability/components/month-calendar.tsx` and `schedule-grid.tsx`: they keep `min-w-[640px]` and `min-w-[840px]`, so they scroll inside their container on a phone, and the week grid does so up to about 1300px wide (it shows 83% at 1280). That is acceptable for a calendar, and phones open on the day view. The weekday header does not stay visible while scrolling yet.
+- `src/features/availability/components/month-calendar.tsx` and `schedule-grid.tsx`: they keep `min-w-[640px]` and `min-w-[840px]`, so they scroll inside their container on a phone, and the week grid does so up to about 1300px wide (it shows 83% at 1280). With the sidebar from `lg`, the month calendar also scrolls inside its container between 1024 and about 1170px wide. That is acceptable for a calendar, and phones open on the day view. The weekday header does not stay visible while scrolling yet.
 - `src/components/ui/dialog.tsx`: the dialog is centred with `w-[calc(100%-2rem)]` by default. The availability filter turns it into a bottom sheet with classes (`FilterSheet`), but other dialogs are still centred on a phone.
 
 ## References
