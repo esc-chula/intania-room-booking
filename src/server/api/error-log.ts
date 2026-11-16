@@ -1,6 +1,5 @@
 import { type TRPCError } from "@trpc/server";
 import { getHTTPStatusCodeFromError } from "@trpc/server/http";
-import { UpstreamApiError } from "./upstream-error";
 
 type Failure = {
   path: string | undefined;
@@ -9,13 +8,11 @@ type Failure = {
 };
 
 /**
- * One log entry for a failed procedure. It never holds the cookie or request
- * headers: only the procedure, the error, the request id and what the Go API
- * answered. The same request id is sent to the API, so its log line matches.
+ * One log entry for a failed procedure. It holds only the procedure, the error
+ * and the request id, never the cookie or request headers. The same request id
+ * is in the failed response, so a report can be matched to its log line.
  */
 export function formatTrpcError({ path, error, requestId }: Failure) {
-  const upstream =
-    error.cause instanceof UpstreamApiError ? error.cause : undefined;
   return {
     event: "trpc_error" as const,
     level: getHTTPStatusCodeFromError(error) >= 500 ? "error" : "warn",
@@ -23,9 +20,6 @@ export function formatTrpcError({ path, error, requestId }: Failure) {
     code: error.code,
     requestId,
     message: error.message,
-    upstreamStatus: upstream?.status,
-    upstreamTarget: upstream?.target,
-    upstreamBody: upstream?.body,
   };
 }
 

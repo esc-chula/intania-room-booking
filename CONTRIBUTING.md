@@ -44,7 +44,7 @@ Features must not import from other features. Move shared code up instead.
 
 Client code gets data through tRPC. Add a router in `src/server/api/routers/` and register it in `src/server/api/root.ts`. Add environment variables to `src/env.js` and `.env.example` together.
 
-A procedure that reads from the Go API for the signed-in person passes `ctx` to `fetchSheetBookings(ctx, ...)` (or a helper like it). That call forwards the `room_auth` cookie and a request id, and throws `UNAUTHORIZED` when there is no cookie. A call without it gets a 401 from the API. Failed procedures are logged for you as one JSON line (`src/server/api/error-log.ts`), so do not add your own `console.error`.
+Data that needs the API's sign-in cookie (the sheet bookings, `/api/v1/auth/me`) does not go through tRPC, because the cookie belongs to the API's host and never reaches this site's server. Call it from the browser with `apiFetch` (`src/lib/api.ts`), which sends the cookie, and wrap it in a React Query hook (see `src/features/availability/hooks.ts`). Log the cause with `console.error` in the hook, since the browser console is the only place a person's failed call can be read. [ADR 0002](docs/adr/0002-auth.md) explains why.
 
 When you add an error code or message a person can see, add it to [docs/troubleshooting.md](docs/troubleshooting.md) as well.
 

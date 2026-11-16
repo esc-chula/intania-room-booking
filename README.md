@@ -43,7 +43,7 @@ src/
     (auth)/              /login
     (user)/              User A and B screens: /home, /requests, /profile
     os/                  OS screens: /os/*
-    api/trpc/            tRPC route, reached as /api/v1/trpc (see ADR 0002)
+    api/trpc/            tRPC endpoint
     error.tsx, not-found.tsx, global-error.tsx   Error and 404 screens
   features/<name>/       Code for one feature: components and hooks
   components/ui/         Generic primitives (shadcn/ui)
@@ -51,7 +51,8 @@ src/
   components/            Shared project components such as StatusBadge
   domain/                Business terms and rules, with no React
   config/                Navigation and request types
-  server/api/routers/    tRPC routers: all server data access
+  server/api/routers/    tRPC routers (data that does not need the API's cookie)
+  lib/api.ts             apiFetch: how the browser calls the Go API (see ADR 0002)
   trpc/                  tRPC clients for server and client components
   styles/globals.css     Design tokens
   env.js                 Validated environment variables

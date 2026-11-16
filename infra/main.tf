@@ -21,7 +21,7 @@ resource "vercel_project" "web" {
 resource "vercel_project_environment_variable" "api_base_url_production" {
   project_id = vercel_project.web.id
   team_id    = local.team_id
-  key        = "API_BASE_URL"
+  key        = "NEXT_PUBLIC_API_BASE_URL"
   value      = var.api_base_url_production
   target     = ["production"]
   sensitive  = false
@@ -32,7 +32,7 @@ resource "vercel_project_environment_variable" "api_base_url_preview" {
 
   project_id = vercel_project.web.id
   team_id    = local.team_id
-  key        = "API_BASE_URL"
+  key        = "NEXT_PUBLIC_API_BASE_URL"
   value      = var.api_base_url_preview
   target     = ["preview"]
   sensitive  = false

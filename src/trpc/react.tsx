@@ -51,9 +51,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
         }),
         httpBatchStreamLink({
           transformer: SuperJSON,
-          // Under /api/v1 so the browser sends the sign-in cookie (Path=/api/v1).
-          // next.config.js rewrites it to the /api/trpc route.
-          url: getBaseUrl() + "/api/v1/trpc",
+          url: getBaseUrl() + "/api/trpc",
           headers: () => {
             const headers = new Headers();
             headers.set("x-trpc-source", "nextjs-react");

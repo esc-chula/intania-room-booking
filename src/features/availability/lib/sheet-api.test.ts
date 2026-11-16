@@ -1,13 +1,5 @@
 import { afterEach, describe, expect, it, spyOn } from "bun:test";
-import { createCaller } from "@/server/api/root";
-import { createTRPCContext } from "@/server/api/trpc";
-
-// Signed in: the sheet endpoints need the sign-in cookie.
-const caller = createCaller(
-  await createTRPCContext({
-    headers: new Headers({ cookie: "room_auth=session-token" }),
-  }),
-);
+import { fetchBuildings, fetchCalendar, fetchSchedule } from "./sheet-api";
 
 const counts = (over: Partial<Record<string, number>> = {}) => ({
   approved: 0,
@@ -29,7 +21,7 @@ function mockApi(body: (url: URL) => unknown, status = 200) {
     )) as unknown as typeof fetch);
 }
 
-describe("availability router", () => {
+describe("sheet API", () => {
   it("sums the calendar over buildings and folds internal statuses into pending", async () => {
     mockApi((url) => ({
       year: 2026,
@@ -47,7 +39,7 @@ describe("availability router", () => {
         },
       ],
     }));
-    const result = await caller.availability.calendar({
+    const result = await fetchCalendar({
       year: 2026,
       month: 8,
       buildings: ["ENG 3", "ENG 4"],
@@ -63,7 +55,7 @@ describe("availability router", () => {
 
   it("calls the API once with no building filter when none is selected", async () => {
     mockApi(() => ({ year: 2026, month: 8, days: [] }));
-    await caller.availability.calendar({ year: 2026, month: 8, buildings: [] });
+    await fetchCalendar({ year: 2026, month: 8, buildings: [] });
     expect(spy).toHaveBeenCalledTimes(1);
     const url = (spy!.mock.calls[0] as [URL])[0];
     expect(url.pathname).toBe("/api/v1/admin/sheet-bookings/calendar");
@@ -92,7 +84,7 @@ describe("availability router", () => {
         },
       ],
     }));
-    const result = await caller.availability.schedule({
+    const result = await fetchSchedule({
       startDate: "2026-08-03",
       buildings: [],
     });
@@ -117,14 +109,12 @@ describe("availability router", () => {
         bookings: [],
       })),
     }));
-    expect(await caller.availability.buildings()).toEqual(["ENG 100", "ENG 3"]);
+    expect(await fetchBuildings()).toEqual(["ENG 100", "ENG 3"]);
   });
 
-  it("reports an unreachable API as BAD_GATEWAY", async () => {
+  it("reports a failing API with its status", async () => {
     mockApi(() => ({ error: "x" }), 502);
-    const error = await caller.availability
-      .buildings()
-      .catch((cause: unknown) => cause);
-    expect(error).toMatchObject({ code: "BAD_GATEWAY" });
+    const error = await fetchBuildings().catch((cause: unknown) => cause);
+    expect(error).toMatchObject({ status: 502 });
   });
 });

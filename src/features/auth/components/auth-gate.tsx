@@ -8,9 +8,9 @@ import { useCurrentUser } from "../hooks";
 import { rememberNextPath } from "../lib/next-path";
 import { SessionProvider } from "./session-context";
 
-// The API's cookie is only sent on /api/v1 requests, so the server cannot see
-// it when it renders a page. The check therefore runs in the browser, and
-// nothing below the gate renders until it passes. See docs/adr/0002-auth.md.
+// The API's sign-in cookie belongs to the API's own host, so the check runs in
+// the browser, which calls the API directly. Nothing below the gate renders
+// until it passes. See docs/adr/0002-auth.md.
 export function AuthGate({
   area,
   children,
