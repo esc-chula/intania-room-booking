@@ -29,26 +29,27 @@ The stack is Next.js and Tailwind CSS v4, so everything below is written as Tail
 
 - Every tappable element is at least 44×44px (Apple) and preferably 48×48px (Material). Icon-only buttons included.
 - To grow the hit area without growing the icon, add padding or a pseudo-element, not a bigger glyph.
+- Tablets are touch devices, so controls stay 44px until `lg` and only shrink for a mouse: `h-11 lg:h-9`. `Button`, `Input`, the dialog close button, checkbox rows, the page header and the view tabs already do this. Copy the pattern, not a fixed `h-9`.
 - Leave at least 8px between adjacent targets so one tap cannot hit two.
 - Do not rely on hover. Anything that appears on hover must also work on tap and on keyboard focus.
 
 ### 5. Type
 
-- Body text is at least 16px on a phone. Smaller text is for secondary captions only. `<input>` at less than 16px makes iOS Safari zoom the page on focus.
+- Body text is at least 16px on a phone. Smaller text is for secondary captions only. `<input>` at less than 16px makes iOS Safari zoom the page on focus, so inputs are `text-base lg:text-sm`.
 - Keep line length at roughly 45 to 75 characters for reading text. Thai has no spaces between words, so check that long strings wrap (`break-words`) and do not push the layout wide.
 - Use `clamp()` or breakpoint-stepped sizes for headings so they do not jump or overflow. Do not let Thai text with tall tone marks clip: keep a line height of at least `leading-6` for body text.
 
 ### 6. Navigation and primary actions
 
-- Collapse the sidebar into a compact top bar below `md` and expand it from `md` up (`AppShell` does this).
+- Collapse the sidebar into a compact top bar below `xl` and expand it from `xl` up (`AppShell` does this). A 224px sidebar leaves a 768px tablet 544px, which cuts the month calendar (640px) off at Sunday.
 - Keep one way to go home or back visible on every screen without extra taps.
 - Keep the main action (submit, approve, book) reachable on a phone. For a long form or detail page, use a sticky bar at the bottom of the screen (`sticky bottom-0`, with `pb-[env(safe-area-inset-bottom)]`), not a button at the end of a long scroll.
-- Put filters and sort controls in a dialog or bottom sheet on a phone, not in a sidebar.
+- Put filters and sort controls in a dialog or bottom sheet on a phone, not in a sidebar. The availability screens show them beside the calendar from `lg` and in a bottom sheet below that (`FilterSheet` in `filter-panel.tsx`), so the calendar comes first.
 
 ### 7. Data-heavy screens
 
 - A table that does not fit on a phone becomes a stack of cards. Each row is a card and each value keeps its label. Render both from the same data and switch with `hidden md:block` and `md:hidden`.
-- Calendars: month, week and day views can scroll inside a container on a phone, but the default view on a phone should be the one that fits (the day view or a list).
+- Calendars: month, week and day views can scroll inside a container on a phone, but the default view on a phone should be the one that fits (the day view or a list). The availability screens open on the day view below `md` (`useMediaQuery` in `src/lib/use-media-query.ts`), and the day view stacks each room as a card instead of a table.
 - Status is never shown by colour alone. Always pair a colour with the label from `StatusBadge`.
 
 ### 8. Components, not pages
@@ -82,9 +83,8 @@ The stack is Next.js and Tailwind CSS v4, so everything below is written as Tail
 
 These break the rules above. Fix them when you touch the file, or in a dedicated pull request. Do not copy them into new code.
 
-- `src/components/ui/button.tsx`: the default size is `h-9` (36px) and `icon` is `size-9`. Both are below 44px on a phone. Raise the touch size below `md` (for example `h-11 md:h-9`), or add a `touch` size.
-- `src/features/availability/components/month-calendar.tsx` and `schedule-grid.tsx`: both use `min-w-[640px]` and `min-w-[840px]`, so they scroll sideways on a phone. This is acceptable for a calendar, but the page should open on a view that fits a phone, and the weekday header should stay visible while scrolling.
-- `src/components/ui/dialog.tsx`: the dialog is centred with `w-[calc(100%-2rem)]`. On a phone, consider a full-width bottom sheet.
+- `src/features/availability/components/month-calendar.tsx` and `schedule-grid.tsx`: they keep `min-w-[640px]` and `min-w-[840px]`, so they scroll inside their container on a phone, and the week grid does so up to about 1300px wide (it shows 83% at 1280). That is acceptable for a calendar, and phones open on the day view. The weekday header does not stay visible while scrolling yet.
+- `src/components/ui/dialog.tsx`: the dialog is centred with `w-[calc(100%-2rem)]` by default. The availability filter turns it into a bottom sheet with classes (`FilterSheet`), but other dialogs are still centred on a phone.
 
 ## References
 
