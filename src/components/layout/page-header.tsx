@@ -15,7 +15,7 @@ export function PageHeader({ title, notificationCount = 0 }: PageHeaderProps) {
       <h1 className="text-2xl font-bold text-primary md:text-3xl 2xl:text-4xl">
         {title}
       </h1>
-      <div className="flex shrink-0 items-center gap-4">
+      <div className="flex shrink-0 items-center gap-1 sm:gap-4">
         <button
           type="button"
           aria-label={
@@ -23,7 +23,7 @@ export function PageHeader({ title, notificationCount = 0 }: PageHeaderProps) {
               ? `การแจ้งเตือน ${notificationCount} รายการ`
               : "การแจ้งเตือน"
           }
-          className="relative rounded-md p-1 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          className="relative grid size-11 place-items-center rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 lg:size-8"
         >
           <Bell aria-hidden className="size-6 fill-current" />
           {notificationCount > 0 ? (
@@ -35,7 +35,7 @@ export function PageHeader({ title, notificationCount = 0 }: PageHeaderProps) {
             </span>
           ) : null}
         </button>
-        <div aria-hidden className="h-10 w-px bg-border" />
+        <div aria-hidden className="hidden h-10 w-px bg-border sm:block" />
         <AccountMenu />
       </div>
     </header>

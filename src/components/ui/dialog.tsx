@@ -29,7 +29,7 @@ function DialogContent({
         {children}
         <DialogPrimitive.Close
           aria-label="ปิด"
-          className="absolute top-6 right-6 rounded-md p-1 text-muted-foreground hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+          className="absolute top-3 right-3 grid size-11 place-items-center rounded-md text-muted-foreground hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none lg:top-5 lg:right-5 lg:size-8"
         >
           <X className="size-5" />
         </DialogPrimitive.Close>
